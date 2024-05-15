@@ -9,24 +9,13 @@ on:
     branches: ["master"]
   release:
     types: ["created"]
-  workflow_dispatch:
-    inputs:
-      target:
-        description: 'Target platform for build'
-        required: false
-        default: 'linux/amd64,linux/arm64'
-      tags:
-        description: 'Tag for the image'
-        required: false
-        default: 'reportportal/k8s-wait-for:latest'
-
+  workflow_dispatch: {}
 env:
   TARGET: linux/arm64,linux/amd64
   BUILD_FLAGS: --no-cache
 
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -35,10 +24,10 @@ jobs:
           fetch-depth: 0
       - name: Build the Docker images
         env:
-          TARGET: ${{ github.event.inputs.target }}
           BUILD_FLAGS: --load --no-cache
         run: make images
   scan:
+    needs: [ "build" ]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -83,13 +72,13 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GH_TOKEN }}
       - uses: actions/checkout@v2
         with:
           # Need tags for Makefile logic to work
