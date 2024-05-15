@@ -20,7 +20,7 @@ env:
 
 jobs:
   scan:
-    name: Scan Docker images
+    name: Scan Docker image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
