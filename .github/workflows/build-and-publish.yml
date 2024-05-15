@@ -24,7 +24,8 @@ jobs:
           fetch-depth: 0
       - name: Build the Docker images
         env:
-          BUILD_FLAGS: --load --no-cache
+          TARGET: linux/amd64
+          BUILD_FLAGS: ${{ env.BUILD_FLAGS }} --load
         run: make images
   scan:
     needs: [ "build" ]
@@ -38,7 +39,7 @@ jobs:
         env:
             # amd build so that local 'docker images' can access images
             TARGET: linux/amd64
-            BUILD_FLAGS: --load --no-cache
+            BUILD_FLAGS: ${{ env.BUILD_FLAGS }} --load
         run: make images
       - name: Run Trivy Vulnerability Scanner for Root Image
         uses: aquasecurity/trivy-action@master
