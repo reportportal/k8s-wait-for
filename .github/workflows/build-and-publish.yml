@@ -10,7 +10,15 @@ on:
   release:
     types: ["created"]
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      target:
+        description: 'Target platform for build'
+        required: false
+        default: 'linux/amd64,linux/arm64'
+      tags:
+        description: 'Tag for the image'
+        required: false
+        default: 'reportportal/k8s-wait-for:latest'
 
 env:
   TARGET: linux/arm64,linux/amd64
@@ -18,6 +26,7 @@ env:
 
 jobs:
   build:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -25,6 +34,9 @@ jobs:
           # Need tags for Makefile logic to work
           fetch-depth: 0
       - name: Build the Docker images
+        env:
+          TARGET: ${{ github.event.inputs.target }}
+          BUILD_FLAGS: --load --no-cache
         run: make images
   scan:
     needs: [ "build" ]
@@ -43,7 +55,7 @@ jobs:
       - name: Run Trivy Vulnerability Scanner for Root Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/groundnuty/k8s-wait-for:latest'
+          image-ref: 'ghcr.io/reportportal/k8s-wait-for:latest'
           exit-code: 1
           format: 'sarif'
           output: 'trivy-results-root.sarif'
@@ -51,7 +63,7 @@ jobs:
       - name: Run Trivy Vulnerability Scanner for Non-Root Image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/groundnuty/k8s-wait-for:no-root-latest'
+          image-ref: 'ghcr.io/reportportal/k8s-wait-for:no-root-latest'
           exit-code: 1
           format: 'sarif'
           output: 'trivy-results-non-root.sarif'
@@ -84,4 +96,7 @@ jobs:
           # Need tags for Makefile logic to work
           fetch-depth: 0
       - name: Build and Push Docker Images
+        env:
+          TARGET: ${{ env.TARGET }}
+          BUILD_FLAGS: ${{ env.BUILD_FLAGS }}
         run: make push
