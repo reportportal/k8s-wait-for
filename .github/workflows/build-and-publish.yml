@@ -16,7 +16,8 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    name: Build testing
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -28,8 +29,9 @@ jobs:
           BUILD_FLAGS: ${{ env.BUILD_FLAGS }} --load
         run: make images
   scan:
+    name: Scan for vulnerabilities
     needs: [ "build" ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -59,14 +61,15 @@ jobs:
           skip-files: /usr/local/bin/kubectl
       # just upload root scan results
       - name: Upload Trivy Scan Results to GitHub Security Tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results-root.sarif'
 
   deploy:
+    name: Deploy to Docker Hub and GitHub Container Registry
     needs: [ "scan" ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'created'
     steps:
       - name: Login to Docker Hub
