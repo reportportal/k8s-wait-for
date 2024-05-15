@@ -5,6 +5,10 @@ on:
     branches: ["master"]
     # Publish semver tags as releases.
     tags: [ "v*.*.*" ]
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - .github/**
   pull_request:
     branches: ["master"]
   release:
@@ -16,7 +20,7 @@ env:
 
 jobs:
   scan:
-    name: Trivy Scan and Build Docker Images
+    name: Scan Docker images
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
