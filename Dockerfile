@@ -1,13 +1,11 @@
 FROM --platform=$BUILDPLATFORM alpine:3.19.1
 
-ARG VCS_REF
 ARG BUILD_DATE
+ARG TARGETOS
 ARG TARGETARCH
 
 # Metadata
 LABEL maintainer="Reingold Shekhtel <Reingold_Shekhtel@epam.com>" \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/groundnuty/k8s-wait-for" \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.docker.dockerfile="/Dockerfile"
 
@@ -15,7 +13,8 @@ RUN apk add --update --no-cache ca-certificates curl jq \
     && echo $(curl -L -s "https://dl.k8s.io/release/stable.txt") > /tmp/k8s_version \
     && K8S_VERSION=$(cat /tmp/k8s_version) \
     && echo "K8S_VERSION: $K8S_VERSION" \
-    && curl -LO "https://dl.k8s.io/release/${K8S_VERSION}/bin/linux/${TARGETARCH}/kubectl" \
+    && echo "https://dl.k8s.io/release/${K8S_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl" \
+    && curl -LO "https://dl.k8s.io/release/${K8S_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl" \
     && chmod +x kubectl \
     && mv ./kubectl /usr/local/bin/kubectl \
     && /usr/local/bin/kubectl version --client

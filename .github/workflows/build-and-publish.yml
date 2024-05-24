@@ -16,7 +16,6 @@ on:
   workflow_dispatch: {}
 env:
   TARGET: linux/arm64,linux/amd64
-  BUILD_FLAGS: --no-cache
 
 jobs:
   scan:
@@ -53,18 +52,30 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v4
         with:
           # Need tags for Makefile logic to work
           fetch-depth: 0
-      - name: Build and Push Docker Images
-        env:
-          TARGET: ${{ env.TARGET }}
-          BUILD_FLAGS: ${{ env.BUILD_FLAGS }}
-        run: make push
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Args
+        id: args
+        run: |
+          echo "DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+          # echo "VERSION=$(shell git describe --tags --always) >> $GITHUB_OUTPUT
+  
+      - name: Build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          build-args: |
+            BUILD_DATE=${{ steps.args.outputs.DATE }}
+          platforms: ${{ env.TARGET }}
+          tags: |
+            docker.io/${{ github.repository }}/k8s-wait-for:latest
+            docker.io/${{ github.repository }}/k8s-wait-for:${{ github.ref_name }}
