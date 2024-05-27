@@ -10,10 +10,8 @@ LABEL maintainer="Reingold Shekhtel <Reingold_Shekhtel@epam.com>" \
       org.label-schema.docker.dockerfile="/Dockerfile"
 
 RUN apk add --update --no-cache ca-certificates curl jq \
-    && echo $(curl -L -s "https://dl.k8s.io/release/stable.txt") > /tmp/k8s_version \
-    && K8S_VERSION=$(cat /tmp/k8s_version) \
+    && K8S_VERSION=$(curl -L -s "https://dl.k8s.io/release/stable.txt") \
     && echo "K8S_VERSION: $K8S_VERSION" \
-    && echo "https://dl.k8s.io/release/${K8S_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl" \
     && curl -LO "https://dl.k8s.io/release/${K8S_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl" \
     && chmod +x kubectl \
     && mv ./kubectl /usr/local/bin/kubectl \
