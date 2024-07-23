@@ -34,5 +34,6 @@ RUN addgroup -g $GID $USER && \
 USER $UID
 
 ADD --chown=$UID:$GID wait_for.sh /usr/local/bin/wait_for.sh
+RUN chmod +x /usr/local/bin/wait_for.sh
 
 ENTRYPOINT ["wait_for.sh"]
