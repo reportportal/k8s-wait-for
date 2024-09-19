@@ -1,4 +1,4 @@
-FROM alpine:3.20.3
+FROM alpine:3.19.1
 
 ARG BUILD_DATE
 ARG TARGETOS
