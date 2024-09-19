@@ -26,9 +26,13 @@ jobs:
         with:
           # Need tags for Makefile logic to work
           fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Build the Docker images
         run: |
-          docker build -t docker.io/reportportal/k8s-wait-for:${{ github.sha }} .
+          docker buildx build --platform linux/amd64,linux/arm64 -t docker.io/reportportal/k8s-wait-for:${{ github.sha }} .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
