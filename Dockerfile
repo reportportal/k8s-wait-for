@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM alpine:3.19.1
+FROM alpine:3.19.1
 
 ARG BUILD_DATE
 ARG TARGETOS
