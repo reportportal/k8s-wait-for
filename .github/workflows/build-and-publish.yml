@@ -20,6 +20,8 @@ env:
 jobs:
   scan:
     name: Scan Docker image
+    env:
+      GITHUB_REF: ${{ github.ref }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
