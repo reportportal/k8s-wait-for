@@ -1,4 +1,4 @@
-FROM alpine:3.22.1
+FROM alpine:3.23.2
 
 ARG BUILD_DATE
 ARG TARGETOS
@@ -9,7 +9,7 @@ LABEL maintainer="Reingold Shekhtel <Reingold_Shekhtel@epam.com>" \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.docker.dockerfile="/Dockerfile"
 
-RUN apk add --update --no-cache ca-certificates curl jq \
+RUN apk add --update --no-cache ca-certificates curl jq libcrypto3 \
     && K8S_VERSION=$(curl -L -s "https://dl.k8s.io/release/stable.txt") \
     && echo "K8S_VERSION: $K8S_VERSION" \
     && curl -LO "https://dl.k8s.io/release/${K8S_VERSION}/bin/${TARGETOS}/${TARGETARCH}/kubectl" \
